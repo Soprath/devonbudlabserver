@@ -63,7 +63,7 @@ For the purposes of this example, GitHub.com is the platform used.
 
 To get started, you need to create an account on the GitHub.com platform.
 
-After that, to be able to clone repositories through SSH without having to use a username and password pair (via HTTPS), you need to start by creating a private/public key pair. Pour cela, GitHub.com propose des tutoriels pour Windows, Linux et Mac.
+After that, to be able to clone repositories through SSH without having to use a username and password pair (via HTTPS), you need to start by creating a private/public key pair. For that purpose, GitHub.com offers tutorials for Windows, Linux and Mac.
 
 Here's what needs to be done in chronological order on the team member's machine:
 
@@ -132,14 +132,47 @@ When you want to run scripts/programmes that are potentially going to run for a 
 
 When working remotely with VS Code or when you connect to the dedicated development server with a terminal window and a process is launched, the process is attached to the caller (VS Code or Terminal). The impact of this is that if the calling program is closed, the linked process is also exited. In practice, the developer should remain connected throughout the execution time. This is sometimes not possible. For example, when a process is launched at the end of the day to run overnight.
 
-The solution is to detach the process from the caller. This can only be done when the process is launched from a terminal window. Here's how to do it:
+The solution is to detach the process from the caller. This can only be done when the process is launched from a terminal window. Here's how to do it.
 
+First, open Terminal and connect to the remote server via ssh :
 
+```
+user@laptop ~ % ssh my_username@10.10.10.10
+```
 
+Next, you need to go to the directory where the git repostory is cloned using the *ls* command. Once there, run the **batch.jl** script as follows:
 
+```
+...$ julia ./examples/batch.jl "test.txt" 1 10 12
+```
 
-[**ATTENTION**] ici montrer comment utiliser la connexion ssh via le terminal pour se connecter au serveur et comment aller lancer un script julia avec nohup et aussi montrer comment récupérer les sorties stdout 1> stderr 2> et comment lister les processus en cours d'exécution et les récupérer entre deux ouvertures de sessions...
+This command launches the execution of the Julia code. The file "test.txt" will be created and the numbers 1 to 10 will be inserted into the file every 12 seconds.
 
+When you confirm the instruction by pressing ENTER, the script is launched and the window is no longer available, as the code is running. If you close the window and return to the server, logging in as before, you will notice that the file has not continued to fill up from 1 to 10 as it should have done. This is because the **batch.jl** process was linked to the window that was closed, so the process did not succeed and was terminated on the way.
+
+In order to be able to close the window and retrieve the complete result of the process by connecting to the remote host again, you need to run the command like this:
+
+```
+...$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 &
+```
+
+By prefixing with the **nohup** keyword and sufixing with **&**. This modification affects the **batch.jl** process by dissociating it from the calling window. As a result, when the window closes, the process continues to run.
+
+Once the command has been issued, the window is now free and not blocked by the process call. To identify the process and its identification number, the following command is useful: 
+
+```
+...$ ps aux | grep julia
+```
+
+Julia processes currently running are returned. It is also possible to replace the term "julia" with "batch.jl" to obtain only the process of interest.
+
+When the instruction is passed as before, a file called **nohup.out** is created and filled with the **stdout** stream. It is also possible to process the **stderr** error stream and log everything in a file whose name and extension is defined directly by the user: 
+
+```
+...$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 > myFile.myExtension 2>&1 &
+```
+
+This means that standard output (stdout) and error output (stderr) go directly into the myFile.myExtension file, which is written at the end of the process. This makes it possible to obtain feedback on the execution afterwards.
 
 ## Docker OSRM server
 
