@@ -176,7 +176,7 @@ This means that standard output (stdout) and error output (stderr) go directly i
 
 ## Docker OSRM server
 
-[**ATTENTION**] ici Présenter le script et donner les sources pour monter un serveur Docker homemad
+// Still to do... coming soon.
 
 ## Ressources complémentaires
 
