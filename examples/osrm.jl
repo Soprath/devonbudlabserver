@@ -3,7 +3,7 @@ using HTTP, JSON
 if length(ARGS) < 1
     println("This short program needs the OSRM server's ip address and his port.")
     println("Usage: julia osrm_example.jl <xx.xx.xx.xx> <xxxx>")
-    println("Example: julia main.jl 127.0.0.1 50000")
+    println("Example: julia osrm.jl 127.0.0.1 50000")
 else
 
     println("The program will ask the OSRM server $(ARGS[1]):$(ARGS[2]) for the shortest distance between two coordinates that you will provide soon.")

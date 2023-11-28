@@ -137,13 +137,13 @@ The solution is to detach the process from the caller. This can only be done whe
 First, open Terminal and connect to the remote server via ssh :
 
 ```
-user@laptop ~ % ssh my_username@10.10.10.10
+user@laptop ~% ssh my_username@10.10.10.10
 ```
 
 Next, you need to go to the directory where the git repostory is cloned using the *ls* command. Once there, run the **batch.jl** script as follows:
 
 ```
-...$ julia ./examples/batch.jl "test.txt" 1 10 12
+~$ julia ./examples/batch.jl "test.txt" 1 10 12
 ```
 
 This command launches the execution of the Julia code. The file "test.txt" will be created and the numbers 1 to 10 will be inserted into the file every 12 seconds.
@@ -153,7 +153,7 @@ When you confirm the instruction by pressing ENTER, the script is launched and t
 In order to be able to close the window and retrieve the complete result of the process by connecting to the remote host again, you need to run the command like this:
 
 ```
-...$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 &
+~$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 &
 ```
 
 By prefixing with the **nohup** keyword and sufixing with **&**. This modification affects the **batch.jl** process by dissociating it from the calling window. As a result, when the window closes, the process continues to run.
@@ -161,7 +161,7 @@ By prefixing with the **nohup** keyword and sufixing with **&**. This modificati
 Once the command has been issued, the window is now free and not blocked by the process call. To identify the process and its identification number, the following command is useful: 
 
 ```
-...$ ps aux | grep julia
+~$ ps aux | grep julia
 ```
 
 Julia processes currently running are returned. It is also possible to replace the term "julia" with "batch.jl" to obtain only the process of interest.
@@ -169,15 +169,48 @@ Julia processes currently running are returned. It is also possible to replace t
 When the instruction is passed as before, a file called **nohup.out** is created and filled with the **stdout** stream. It is also possible to process the **stderr** error stream and log everything in a file whose name and extension is defined directly by the user: 
 
 ```
-...$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 > myFile.myExtension 2>&1 &
+~$ nohup julia ./examples/batch.jl "test.txt" 1 10 12 > myFile.myExtension 2>&1 &
 ```
 
 This means that standard output (stdout) and error output (stderr) go directly into the myFile.myExtension file, which is written at the end of the process. This makes it possible to obtain feedback on the execution afterwards.
 
 ## Docker OSRM server
+As part of the team's activities, a server for calculating distances between different GPS points is very useful.
 
-// Still to do... coming soon.
+For this reason, an OSRM (Open Source Routing Machine) server was required and was configured to provide an unlimited service for calculating shorter paths. This server and the service it provides is similar to the [OSRM API](https://project-osrm.org/) accessible via the Internet. The difference lies in the fact that it is not limited and that it is free since it uses the school's resources.
 
-## Ressources complémentaires
+The current service is configured with data from Switzerland only. However, it might be possible to modify this or simply recreate a new container for a different country or even an entire zone such as Europe. 
 
-Mettre éventuellement quelques liens complémentaires, à voir...
+The documentation available on [Docker Hub](https://hub.docker.com/r/osrm/osrm-backend/) gives all the information you need to mount your own server in a container on a Docker host. Note that the only difference is that **berlin-latest.osm.pbf** has been replaced by **switzerland-latest.osm.pbf** for the HEGBUDLAB server.
+
+The service can be managed from the server console (connection via SSH). Here are the main operations to be carried out:
+- Listing of active containers
+```
+~$ docker ps
+``````
+Each container is characterised by the following information : "container id", "image", "command", "created", "status", "ports", "names". For the rest of the examples, we will assume that the id is as follows **8d74705dffe8**.
+- Stop the running container
+```
+~$ docker stop 8d74705dffe8
+```
+- Start the container once it has stopped
+```
+~$ docker start 8d74705dffe8
+```
+- Restart the running container
+```
+~$ docker restart 8d74705dffe8
+```
+It is also essential to be able to query the server to obtain information, such as distances between two points. In a terminal, the following command is used to retrieve information between the following two points (13.388860, 52.517037) and (13.385983, 52.496891) :
+```
+~$ curl "http://10.10.10.10:5000/route/v1/driving/13.388860,52.517037;13.385983,52.496891?overview=false"
+```
+The JSON result looks like this:
+
+![OSRM answer](/figures/api-osrm-result.png "OSRM return from request")
+
+To process data directly by programming, using the Julia language, the **osrm.jl** script can be used to understand how it works and the results. To run the script, issue the following command:
+```
+~$ julia ./examples/osrm.jl
+```
+A user guide is displayed, allowing you to make a full query and obtain the distance between two GPS points.
