@@ -214,3 +214,5 @@ To process data directly by programming, using the Julia language, the **osrm.jl
 ~$ julia ./examples/osrm.jl
 ```
 A user guide is displayed, allowing you to make a full query and obtain the distance between two GPS points.
+
+For security reasons, the HEGBUDLAB server may not be accessible directly via VPN and the ip address 10.10.10.10. If this is the case, it is possible to run the examples presented above via the loopback address 127.0.0.1 directly from the server. In other words, by connecting to the server via ssh and executing the **osrm.jl** presentation script or by sending a curl request replacing the 10.10.10.10 address with 127.0.0.1.
